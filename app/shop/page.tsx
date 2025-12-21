@@ -1,6 +1,6 @@
- 'use client'
+'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import FilterPanel from '@/components/shop/FilterPanel'
@@ -21,7 +21,7 @@ interface Filters {
   onSale: boolean
 }
 
-export default function ShopPage() {
+function ShopContent() {
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [showFilters, setShowFilters] = useState(false)
@@ -279,5 +279,13 @@ export default function ShopPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>}>
+      <ShopContent />
+    </Suspense>
   )
 }
