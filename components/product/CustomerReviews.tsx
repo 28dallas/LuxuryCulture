@@ -166,4 +166,257 @@ export function CustomerReviews({
         ))}
       </div>
     )
-  }\n\n  return (\n    <div className=\"bg-white\">\n      {/* Reviews Summary */}\n      <div className=\"border-b border-gray-200 pb-8 mb-8\">\n        <div className=\"grid grid-cols-1 lg:grid-cols-2 gap-8\">\n          {/* Overall Rating */}\n          <div>\n            <div className=\"flex items-center space-x-4 mb-6\">\n              <div className=\"text-5xl font-bold text-gray-900\">{averageRating}</div>\n              <div>\n                {renderStars(Math.round(averageRating), 'lg')}\n                <p className=\"text-sm text-gray-600 mt-1\">\n                  Based on {totalReviews} reviews\n                </p>\n              </div>\n            </div>\n            \n            <Button \n              onClick={() => setShowReviewForm(true)}\n              className=\"w-full sm:w-auto\"\n            >\n              Write a Review\n            </Button>\n          </div>\n\n          {/* Rating Distribution */}\n          <div>\n            <h4 className=\"font-semibold text-gray-900 mb-4\">Rating Breakdown</h4>\n            <div className=\"space-y-3\">\n              {ratingDistribution.map((item) => (\n                <div key={item.stars} className=\"flex items-center space-x-3\">\n                  <div className=\"flex items-center space-x-1 w-16\">\n                    <span className=\"text-sm font-medium\">{item.stars}</span>\n                    <Star className=\"w-4 h-4 text-yellow-400 fill-current\" />\n                  </div>\n                  <div className=\"flex-1 bg-gray-200 rounded-full h-2\">\n                    <div \n                      className=\"bg-yellow-400 h-2 rounded-full\" \n                      style={{ width: `${item.percentage}%` }}\n                    />\n                  </div>\n                  <span className=\"text-sm text-gray-600 w-12\">{item.count}</span>\n                </div>\n              ))}\n            </div>\n          </div>\n        </div>\n      </div>\n\n      {/* Filters and Sorting */}\n      <div className=\"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6\">\n        <div className=\"flex items-center space-x-4\">\n          <div className=\"flex items-center space-x-2\">\n            <Filter size={16} className=\"text-gray-400\" />\n            <select\n              value={filterBy}\n              onChange={(e) => setFilterBy(e.target.value)}\n              className=\"border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500\"\n            >\n              <option value=\"all\">All Reviews</option>\n              <option value=\"verified\">Verified Only</option>\n              <option value=\"5-star\">5 Stars</option>\n              <option value=\"4-star\">4 Stars</option>\n              <option value=\"3-star\">3 Stars</option>\n              <option value=\"2-star\">2 Stars</option>\n              <option value=\"1-star\">1 Star</option>\n            </select>\n          </div>\n        </div>\n\n        <select\n          value={sortBy}\n          onChange={(e) => setSortBy(e.target.value)}\n          className=\"border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500\"\n        >\n          <option value=\"newest\">Newest First</option>\n          <option value=\"oldest\">Oldest First</option>\n          <option value=\"highest\">Highest Rating</option>\n          <option value=\"lowest\">Lowest Rating</option>\n          <option value=\"helpful\">Most Helpful</option>\n        </select>\n      </div>\n\n      {/* Reviews List */}\n      <div className=\"space-y-6\">\n        {filteredReviews.map((review) => (\n          <div key={review.id} className=\"border border-gray-200 rounded-xl p-6\">\n            <div className=\"flex items-start justify-between mb-4\">\n              <div className=\"flex items-center space-x-3\">\n                <div className=\"w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center\">\n                  {review.userAvatar ? (\n                    <img \n                      src={review.userAvatar} \n                      alt={review.userName}\n                      className=\"w-10 h-10 rounded-full object-cover\"\n                    />\n                  ) : (\n                    <User size={20} className=\"text-gray-500\" />\n                  )}\n                </div>\n                <div>\n                  <div className=\"flex items-center space-x-2\">\n                    <h5 className=\"font-semibold text-gray-900\">{review.userName}</h5>\n                    {review.verified && (\n                      <div className=\"flex items-center space-x-1 text-green-600\">\n                        <CheckCircle size={16} />\n                        <span className=\"text-xs font-medium\">Verified Purchase</span>\n                      </div>\n                    )}\n                  </div>\n                  <p className=\"text-sm text-gray-600\">{new Date(review.date).toLocaleDateString()}</p>\n                </div>\n              </div>\n              {renderStars(review.rating)}\n            </div>\n\n            <h4 className=\"font-semibold text-gray-900 mb-2\">{review.title}</h4>\n            <p className=\"text-gray-700 mb-4\">{review.content}</p>\n\n            {(review.size || review.color) && (\n              <div className=\"flex items-center space-x-4 mb-4 text-sm text-gray-600\">\n                {review.size && <span>Size: {review.size}</span>}\n                {review.color && <span>Color: {review.color}</span>}\n              </div>\n            )}\n\n            <div className=\"flex items-center space-x-4\">\n              <button className=\"flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors\">\n                <ThumbsUp size={16} />\n                <span>Helpful ({review.helpful})</span>\n              </button>\n              <button className=\"flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors\">\n                <ThumbsDown size={16} />\n                <span>Not Helpful ({review.notHelpful})</span>\n              </button>\n            </div>\n          </div>\n        ))}\n      </div>\n\n      {/* Review Form Modal */}\n      {showReviewForm && (\n        <div className=\"fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4\">\n          <div className=\"bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto\">\n            <div className=\"p-6\">\n              <h3 className=\"text-xl font-bold text-gray-900 mb-6\">Write a Review</h3>\n              \n              <form onSubmit={handleSubmitReview} className=\"space-y-6\">\n                {/* Rating */}\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n                    Rating *\n                  </label>\n                  <div className=\"flex items-center space-x-2\">\n                    {[1, 2, 3, 4, 5].map((star) => (\n                      <button\n                        key={star}\n                        type=\"button\"\n                        onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}\n                        className=\"focus:outline-none\"\n                      >\n                        <Star\n                          className={`w-8 h-8 transition-colors ${\n                            star <= newReview.rating\n                              ? 'text-yellow-400 fill-current'\n                              : 'text-gray-300 hover:text-yellow-200'\n                          }`}\n                        />\n                      </button>\n                    ))}\n                  </div>\n                </div>\n\n                {/* Title */}\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n                    Review Title *\n                  </label>\n                  <input\n                    type=\"text\"\n                    required\n                    value={newReview.title}\n                    onChange={(e) => setNewReview(prev => ({ ...prev, title: e.target.value }))}\n                    className=\"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500\"\n                    placeholder=\"Summarize your experience\"\n                  />\n                </div>\n\n                {/* Content */}\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n                    Review Content *\n                  </label>\n                  <textarea\n                    required\n                    rows={4}\n                    value={newReview.content}\n                    onChange={(e) => setNewReview(prev => ({ ...prev, content: e.target.value }))}\n                    className=\"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500\"\n                    placeholder=\"Share your thoughts about this product\"\n                  />\n                </div>\n\n                {/* Size and Color */}\n                <div className=\"grid grid-cols-2 gap-4\">\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n                      Size (Optional)\n                    </label>\n                    <input\n                      type=\"text\"\n                      value={newReview.size}\n                      onChange={(e) => setNewReview(prev => ({ ...prev, size: e.target.value }))}\n                      className=\"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500\"\n                      placeholder=\"e.g., 9\"\n                    />\n                  </div>\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n                      Color (Optional)\n                    </label>\n                    <input\n                      type=\"text\"\n                      value={newReview.color}\n                      onChange={(e) => setNewReview(prev => ({ ...prev, color: e.target.value }))}\n                      className=\"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500\"\n                      placeholder=\"e.g., Black/White\"\n                    />\n                  </div>\n                </div>\n\n                {/* Actions */}\n                <div className=\"flex items-center justify-end space-x-4 pt-4\">\n                  <button\n                    type=\"button\"\n                    onClick={() => setShowReviewForm(false)}\n                    className=\"px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors\"\n                  >\n                    Cancel\n                  </button>\n                  <Button type=\"submit\">\n                    Submit Review\n                  </Button>\n                </div>\n              </form>\n            </div>\n          </div>\n        </div>\n      )}\n    </div>\n  )\n}
+  }
+
+  return (
+    <div className="bg-white">
+      {/* Reviews Summary */}
+      <div className="border-b border-gray-200 pb-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Overall Rating */}
+          <div>
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="text-5xl font-bold text-gray-900">{averageRating}</div>
+              <div>
+                {renderStars(Math.round(averageRating), 'lg')}
+                <p className="text-sm text-gray-600 mt-1">
+                  Based on {totalReviews} reviews
+                </p>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={() => setShowReviewForm(true)}
+              className="w-full sm:w-auto"
+            >
+              Write a Review
+            </Button>
+          </div>
+
+          {/* Rating Distribution */}
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-4">Rating Breakdown</h4>
+            <div className="space-y-3">
+              {ratingDistribution.map((item) => (
+                <div key={item.stars} className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-1 w-16">
+                    <span className="text-sm font-medium">{item.stars}</span>
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  </div>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-yellow-400 h-2 rounded-full" 
+                      style={{ width: `${item.percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-gray-600 w-12">{item.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and Sorting */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Filter size={16} className="text-gray-400" />
+            <select
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="all">All Reviews</option>
+              <option value="verified">Verified Only</option>
+              <option value="5-star">5 Stars</option>
+              <option value="4-star">4 Stars</option>
+              <option value="3-star">3 Stars</option>
+              <option value="2-star">2 Stars</option>
+              <option value="1-star">1 Star</option>
+            </select>
+          </div>
+        </div>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="highest">Highest Rating</option>
+          <option value="lowest">Lowest Rating</option>
+          <option value="helpful">Most Helpful</option>
+        </select>
+      </div>
+
+      {/* Reviews List */}
+      <div className="space-y-6">
+        {filteredReviews.map((review) => (
+          <div key={review.id} className="border border-gray-200 rounded-xl p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  {review.userAvatar ? (
+                    <img 
+                      src={review.userAvatar} 
+                      alt={review.userName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User size={20} className="text-gray-500" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h5 className="font-semibold text-gray-900">{review.userName}</h5>
+                    {review.verified && (
+                      <div className="flex items-center space-x-1 text-green-600">
+                        <CheckCircle size={16} />
+                        <span className="text-xs font-medium">Verified Purchase</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600">{new Date(review.date).toLocaleDateString()}</p>
+                </div>
+              </div>
+              {renderStars(review.rating)}
+            </div>
+
+            <h4 className="font-semibold text-gray-900 mb-2">{review.title}</h4>
+            <p className="text-gray-700 mb-4">{review.content}</p>
+
+            {(review.size || review.color) && (
+              <div className="flex items-center space-x-4 mb-4 text-sm text-gray-600">
+                {review.size && <span>Size: {review.size}</span>}
+                {review.color && <span>Color: {review.color}</span>}
+              </div>
+            )}
+
+            <div className="flex items-center space-x-4">
+              <button className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <ThumbsUp size={16} />
+                <span>Helpful ({review.helpful})</span>
+              </button>
+              <button className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <ThumbsDown size={16} />
+                <span>Not Helpful ({review.notHelpful})</span>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Review Form Modal */}
+      {showReviewForm && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Write a Review</h3>
+              
+              <form onSubmit={handleSubmitReview} className="space-y-6">
+                {/* Rating */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating *
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
+                        className="focus:outline-none"
+                      >
+                        <Star
+                          className={`w-8 h-8 transition-colors ${
+                            star <= newReview.rating
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300 hover:text-yellow-200'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Review Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newReview.title}
+                    onChange={(e) => setNewReview(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Summarize your experience"
+                  />
+                </div>
+
+                {/* Content */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Review Content *
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={newReview.content}
+                    onChange={(e) => setNewReview(prev => ({ ...prev, content: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Share your thoughts about this product"
+                  />
+                </div>
+
+                {/* Size and Color */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Size (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={newReview.size}
+                      onChange={(e) => setNewReview(prev => ({ ...prev, size: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      placeholder="e.g., 9"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Color (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={newReview.color}
+                      onChange={(e) => setNewReview(prev => ({ ...prev, color: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      placeholder="e.g., Black/White"
+                    />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-end space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewForm(false)}
+                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <Button type="submit">
+                    Submit Review
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
